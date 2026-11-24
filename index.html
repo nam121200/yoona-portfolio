@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>YOONA NAM — UX/UI DESIGNER</title>
+<style>
+/* 남윤아 포트폴리오 — 13주 HUD 히어로 디자인 시스템(HUD히어로_샘플.html)을 복사해 내 내용으로 바꾼 판.
+   히어로 영상: video/ · 작업 이미지: images/(공개용 — 학교 로고 · 강의실 · 교수 이름 · 학년 · 평점은 이미지 파일에서 지움). 개인정보(학교 · 강의실 · 교수 이름 · 학년 · 평점 · 가족 이름)는 넣지 않는다.
+   아래는 원본 설명 그대로 — American Haiku 프로젝트 페이지의 "영상 + 촬영 장비 HUD" 구조를 수업용으로 재현한 데모 v2.
+   v1 → v2(2026-11-23): 빈 컨텍스트 UX 감수 15건 반영. 꾸밈 요소(모서리 괄호 · 십자선 · 타임코드 · REC · 시계 · 이중 표기 메뉴 · 흰 태그 · 고정폭 대문자 · 레터박스 · 움직이면 켜짐)는 그대로. */
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap");
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+:root {
+  --bg: #000; --fg: #fff; --hud: #141414; --hud-ink: #fff; --accent: var(--hud);   /* 남윤아판: 밝은 영상 위라 HUD는 먹색, 반전 글자는 흰색 */
+  --font: "JetBrains Mono", Pretendard, monospace;
+  --line: 1px solid var(--fg); --radius: 2px;
+  --fs-micro: 10px; --fs-nav: 14px; --fs-body: 15px; --fs-tc: 18px;
+}
+* { box-sizing: border-box; margin: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--fg); font: 400 var(--fs-body)/1.1 var(--font); text-transform: uppercase; }
+
+/* 영상: 화면에 고정 · contain → 화면이 영상보다 길면 위아래 검은 띠(레터박스). 파일은 화면에 맞는 것 하나만 불러온다 */
+.film { position: fixed; inset: 0; z-index: 1; display: grid; place-items: center; }
+.film video { width: 100%; height: 100%; object-fit: contain; }
+.film::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: none; }   /* 남윤아판: 영상이 밝아 어둡게 덮지 않는다 */
+.hero { height: 100vh; height: 100dvh; }
+
+/* HUD: 전체는 클릭이 통과, 버튼만 받는다. 꺼져 있을 때는 버튼도 받지 않는다 */
+.hud { position: fixed; inset: 0; z-index: 10; pointer-events: none; opacity: 1; transition: opacity .3s; }
+.hud:focus-within { opacity: 1; }                                   /* 키보드 포커스가 있으면 숨기지 않는다 */
+/* 꾸밈 요소는 모두 한 색(--hud). 반전 · 그림자 없이 같은 색으로 고정 */
+.hud { color: var(--hud); --line: 1px solid var(--hud); }
+.hud button, .hud a { pointer-events: auto; font: inherit; color: inherit; background: none; border: 0; cursor: pointer; text-transform: inherit; text-decoration: none; position: relative; }
+.hud button::after, .hud a::after { content: ""; position: absolute; inset: -10px; }   /* 겉모양은 그대로, 누르는 영역만 넓힘 */
+.hud :focus-visible { outline: 2px solid var(--hud); outline-offset: 3px; }
+@media (hover: hover) { .hud button:hover, .hud a:hover { background: var(--hud); color: var(--hud-ink); } }
+
+/* 네 모서리 괄호 틀 — 아래 변은 재생기 위로 */
+.frame { position: absolute; inset: 7vh 4vw 150px; }
+.frame i { position: absolute; width: 28px; height: 28px; border: 0 solid var(--hud); }
+.frame i:nth-child(1) { left: 0; top: 0; border-left-width: 2px; border-top-width: 2px; }
+.frame i:nth-child(2) { right: 0; top: 0; border-right-width: 2px; border-top-width: 2px; }
+.frame i:nth-child(3) { left: 0; bottom: 0; border-left-width: 2px; border-bottom-width: 2px; }
+.frame i:nth-child(4) { right: 0; bottom: 0; border-right-width: 2px; border-bottom-width: 2px; }
+.frame b { position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; transform: translate(-50%,-50%); }
+.frame b::before, .frame b::after { content: ""; position: absolute; background: var(--hud); }
+.frame b::before { left: 50%; top: 0; bottom: 0; width: 1px; } .frame b::after { top: 50%; left: 0; right: 0; height: 1px; }
+
+/* 위 줄 */
+.top { position: absolute; left: 0; right: 0; top: 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: start; padding: 14px 24px; }
+.brand b { display: block; font-size: 20px; font-weight: 500; letter-spacing: .02em; }
+.slate { display: inline-flex; gap: 14px; margin-top: 6px; border: var(--line); padding: 2px 6px; font-size: var(--fs-micro); }
+.nav { display: flex; gap: 48px; font-size: var(--fs-nav); }
+.nav a { display: flex; flex-direction: column; align-items: center; line-height: 20px; padding: 0 4px; }
+.nav a span:last-child { font-family: Pretendard, sans-serif; font-weight: 600; }
+.status { justify-self: end; display: flex; align-items: center; gap: 14px; font-size: var(--fs-nav); }
+.rec { display: inline-flex; align-items: center; gap: 6px; }
+.rec::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* 오른쪽 위 정보 태그 — 영상 자막(왼쪽)과 겹치지 않게 */
+.info { position: absolute; right: 24px; top: 14vh; display: grid; gap: 6px; justify-items: end; text-align: right; }
+.tag { background: var(--hud); color: var(--hud-ink); padding: 2px 8px; font-family: Pretendard, var(--font); font-weight: 600; }
+.info p + .tag { margin-top: 26px; }
+
+/* 왼쪽 아래 재생기 */
+.deck { position: absolute; left: 24px; bottom: 54px; display: grid; gap: 18px; }
+.tc { font-size: var(--fs-tc); line-height: 28px; display: flex; gap: 28px; }
+.ctrl { display: flex; gap: 12px; align-items: center; }
+.ctrl button { border: var(--line); border-radius: var(--radius); padding: 3px 8px; font-size: 13px; min-width: 40px; }
+
+/* 오른쪽 비율 버튼 */
+.side { position: absolute; right: 24px; top: 50%; transform: translateY(-50%); display: grid; gap: 22px; }
+.side button { width: 56px; height: 34px; font-size: 13px; border-radius: 4px; }
+.side button::before { content: ""; position: absolute; inset: 0;
+  background: linear-gradient(var(--hud),var(--hud)) left top/10px 2px, linear-gradient(var(--hud),var(--hud)) left top/2px 10px,
+              linear-gradient(var(--hud),var(--hud)) right top/10px 2px, linear-gradient(var(--hud),var(--hud)) right top/2px 10px,
+              linear-gradient(var(--hud),var(--hud)) left bottom/10px 2px, linear-gradient(var(--hud),var(--hud)) left bottom/2px 10px,
+              linear-gradient(var(--hud),var(--hud)) right bottom/10px 2px, linear-gradient(var(--hud),var(--hud)) right bottom/2px 10px; background-repeat: no-repeat; }
+.side button[aria-pressed="true"] { background: var(--hud); color: var(--hud-ink); }
+
+/* 작업 넘기기 · 키 안내 */
+.reel { position: absolute; right: 24px; bottom: 54px; display: flex; align-items: center; gap: 14px; }
+.reel .bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 30vw; min-width: 260px; border: var(--line); border-radius: var(--radius); padding: 6px 10px; }
+.reel .bar button { padding: 0 6px; }
+.keys { position: absolute; left: 24px; bottom: 14px; display: flex; gap: 22px; font-size: 13px; }
+.keys kbd { border: var(--line); border-radius: var(--radius); padding: 0 5px; margin-right: 6px; font: inherit; }
+
+/* 히어로 아래 내용 — 영상은 고정, 페이지가 그 위로 올라온다 */
+main { position: relative; z-index: 20; background: var(--bg); }
+main section { padding: 14vh 6vw 12vh; border-top: var(--line); }
+main h2 { font-size: 13px; letter-spacing: .12em; display: flex; justify-content: space-between; margin-bottom: 40px; }
+main h2 span:last-child { color: #777; }
+main h3 { font: 700 clamp(34px, 5vw, 68px)/1.1 Pretendard, sans-serif; text-transform: none; letter-spacing: -.02em; }
+main p { font: 400 17px/1.7 Pretendard, sans-serif; text-transform: none; color: #bdbdbd; max-width: 38em; }
+main img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.tagline { display: inline-block; background: var(--fg); color: var(--bg); padding: 2px 8px; font: 600 13px Pretendard, var(--font); margin-bottom: 18px; }
+.meta { display: flex; flex-wrap: wrap; gap: 14px 40px; margin: 26px 0; font-size: 12px; }
+.meta div { display: grid; gap: 6px; } .meta dt { color: #777; } .meta dd { margin: 0; }
+
+/* WORK — 목록 */
+.wlist { list-style: none; padding: 0; border-top: var(--line); }
+.wlist a { display: grid; grid-template-columns: 70px 1fr auto auto; gap: 24px; align-items: center; padding: 22px 0; border-bottom: var(--line); color: inherit; text-decoration: none; }
+.wlist b { font: 600 clamp(20px, 2.4vw, 30px)/1.2 Pretendard, sans-serif; text-transform: none; }
+.wlist span { font-size: 12px; color: #999; }
+@media (hover: hover) { .wlist a:hover { background: var(--fg); color: var(--bg); } .wlist a:hover span { color: #333; } }
+
+/* 작업 상세 */
+.case { display: grid; grid-template-columns: 1fr 1.25fr; gap: 5vw; align-items: start; }
+.shots { display: grid; grid-template-columns: 2fr 1fr; gap: 12px; aspect-ratio: 16 / 7; }
+.shots figure { margin: 0; position: relative; overflow: hidden; border: var(--line); }
+.shots figcaption { position: absolute; left: 8px; bottom: 6px; font-size: 10px; background: var(--bg); padding: 1px 5px; }
+
+/* ABOUT */
+.about { display: grid; grid-template-columns: 1.2fr 1fr; gap: 5vw; }
+.about h3 + p { margin-top: 26px; }
+.about .pic { aspect-ratio: 4 / 3; border: var(--line); overflow: hidden; }
+.rows { margin-top: 40px; border-top: var(--line); }
+.rows div { display: grid; grid-template-columns: 140px 1fr; gap: 20px; padding: 14px 0; border-bottom: var(--line); font-size: 13px; }
+.rows div span:first-child { color: #777; }
+.rows div span:last-child { font-family: Pretendard, var(--font); text-transform: none; }
+
+/* ARCHIVE */
+.arc { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.arc figure { margin: 0; }
+.arc .ph { aspect-ratio: 4 / 5; border: var(--line); overflow: hidden; }
+.arc figcaption { display: grid; gap: 4px; padding-top: 10px; font-size: 11px; }
+.arc figcaption b { font: 600 15px/1.35 Pretendard, sans-serif; text-transform: none; }
+.arc figcaption span { color: #888; }
+.foot { display: flex; justify-content: space-between; padding: 28px 6vw; border-top: var(--line); font-size: 12px; color: #888; }
+
+@media (max-width: 760px) {
+  main section { padding: 10vh 16px 9vh; }
+  .case, .about { grid-template-columns: 1fr; }
+  .shots { aspect-ratio: 4 / 3; }
+  .wlist a { grid-template-columns: 44px 1fr; } .wlist a span:nth-of-type(n+2) { display: none; }
+  .arc { grid-template-columns: repeat(2, 1fr); }
+  main h3 + p, .about h3 + p { margin-top: 18px; }
+}
+
+/* 폰 세로 */
+@media (max-width: 760px) {
+  .top { grid-template-columns: 1fr auto; row-gap: 10px; padding: 12px 16px; }
+  .nav { grid-column: 1 / -1; grid-row: 2; gap: 24px; justify-content: center; }
+  .status { grid-row: 1; grid-column: 2; }
+  .info { top: 120px; right: 16px; }
+  .side { right: 12px; }
+  .frame { inset: 110px 4vw 230px; }
+  .deck { left: 16px; } .ctrl { gap: 10px; } .ctrl button { padding: 3px 6px; font-size: 12px; }
+  .reel { right: 16px; bottom: 150px; } .reel .bar { width: 64vw; min-width: 0; }
+}
+/* 폰 가로 · 낮은 화면 */
+@media (max-height: 500px) {
+  .nav { gap: 22px; } .status { gap: 8px; }
+  .info { top: 64px; } .info p + .tag { margin-top: 10px; }
+  .side { top: auto; bottom: 96px; transform: none; grid-auto-flow: column; }
+  .frame { inset: 52px 4vw 100px; }
+  .deck { gap: 8px; } .reel { bottom: 54px; } .reel .bar { width: 36vw; }
+}
+/* 움직임 줄이기 — 꾸밈은 보이되 움직이지 않는다 */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .rec::before { animation: none; }
+  .hud { transition: none; }
+}
+
+/* ── 남윤아판: 작업 목업 · 소개 그림 ── */
+.erase { position: absolute; display: block; background: #fff; }   /* 학교 로고 · 강의실 · 교수 이름 · 학년 · 평점을 바탕색으로 덮어 지움 */
+main h3, main p, .wlist b { word-break: keep-all; }   /* 한글 단어 중간에서 줄이 꺾이지 않게 */
+.mock { display: flex; align-items: center; justify-content: center; gap: 5%; }
+.m-hy { background: linear-gradient(160deg, #EDE7FC 0%, #D7DFFB 55%, #C9D8FA 100%); }   /* 헤이영 학생증 띠의 보라 → 파랑 */
+.m-bd { background: linear-gradient(160deg, #DDF2F2 0%, #EEF0E2 55%, #F5E3CB 100%); }   /* BODA 화면의 하늘색 → 모래색 */
+.mock .ph { position: relative; height: 82%; aspect-ratio: 9 / 19.5; border-radius: 22px; overflow: hidden; background: #fff; flex: none;
+  box-shadow: 0 0 0 5px #fff, 0 0 0 6px rgba(20,20,40,.12), 0 18px 36px rgba(30,30,70,.22); }
+.mock .ph img { position: static; display: block; width: 100%; height: auto; object-fit: initial; }
+.mock .ph .scr { position: absolute; left: 0; top: 0; height: 2000px; transform-origin: 0 0; }
+.mock .ph .scr img { position: absolute; left: 0; top: 0; width: auto; }
+.mock figcaption { color: var(--fg); }
+.orb { display: grid; place-items: center; background: linear-gradient(180deg, #ECE6FB 0%, #D9CCF6 40%, #B78BF0 62%, #6F86F0 100%); }   /* 홍보 영상 첫 장면의 구슬 */
+.orb i { width: 34%; aspect-ratio: 1; border-radius: 50%;
+  background: radial-gradient(circle at 36% 30%, #fff 0%, #F1EAFF 22%, #CDB8FA 48%, #9FA9F6 74%, #6F7EEA 100%);
+  box-shadow: inset -14px -18px 30px rgba(70,60,190,.35), inset 10px 14px 24px rgba(255,255,255,.7), 0 30px 60px rgba(60,40,160,.25); }
+
+/* ── 남윤아판: 바탕 흰색 + 홍보 영상과 같은 톤 ──
+   영상 색: 흰 바탕 · 먹색 글자 #141414 · 연회색 보조 글자 #9A99A3 · 연보라 면 #F2F0FA · 학생증 띠 보라 #B37CF0 → 파랑 #6F86F0 · 체크 보라 #6F74F2 · 둥근 모서리 */
+:root { --bg: #fff; --fg: #141414; --sub: #9A99A3; --soft: #F4F2FB; --accent2: #6F74F2; }
+body { background: var(--bg); color: var(--fg); }
+main { background: var(--bg); --line: 1px solid #E6E3EF; }
+main h2 span:last-child { color: var(--sub); }
+main p { color: #5B5A66; }
+.tagline { background: linear-gradient(90deg, #B37CF0, #6F86F0); color: #fff; border-radius: 999px; padding: 3px 12px; }
+.meta dt { color: var(--sub); }
+.wlist span { color: #8D8C98; }
+.wlist a { border-radius: 0; transition: background .2s; }
+@media (hover: hover) { .wlist a:hover { background: var(--soft); color: var(--fg); } .wlist a:hover span { color: var(--accent2); } }
+.shots figure { border: var(--line); border-radius: 18px; }
+.shots figcaption { background: rgba(255,255,255,.92); color: var(--fg); border-radius: 6px; }
+.about .pic { border: var(--line); border-radius: 24px; }
+.rows div span:first-child { color: var(--sub); }
+.foot { color: var(--sub); }
+</style>
+</head>
+<body>
+<div class="film" aria-hidden="true"><video id="v" muted loop playsinline preload="auto"></video></div>
+
+<div class="hud" id="hud">
+  <div class="frame" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></div>
+
+  <div class="top">
+    <div class="brand"><b>YOONA NAM</b><span class="slate" aria-hidden="true"><span>T</span><span id="tcS">00:00:00:00</span></span></div>
+    <nav class="nav" aria-label="주 메뉴">
+      <a href="#work"><span>WORK</span><span>작업</span></a>
+      <a href="#about"><span>ABOUT</span><span>소개</span></a>
+    </nav>
+    <div class="status" aria-hidden="true"><span class="rec">REC</span><span id="clock">00:00:00</span></div>
+  </div>
+
+  <div class="info">
+    <span class="tag">역할</span><p>UX/UI DESIGNER</p>
+    <span class="tag">기준</span><p>깊이 들여다보고,<br>빛나는 것을 찾아 보여주는</p>
+  </div>
+
+  <div class="deck">
+    <div class="tc" aria-hidden="true"><span>시간</span><span id="tcL">00:00:00:00</span></div>
+    <div class="ctrl" role="group" aria-label="영상 조작">
+      <button id="back" aria-label="5초 뒤로">−5S</button>
+      <button id="play" aria-label="일시정지">❚❚</button>
+      <button id="fwd" aria-label="5초 앞으로">+5S</button>
+      <button id="snd" aria-label="소리" aria-pressed="false">SOUND OFF</button>
+    </div>
+  </div>
+
+  <div class="side" role="group" aria-label="화면 비율">
+    <button data-ratio="land" aria-pressed="true">16:9</button>
+    <button data-ratio="port" aria-pressed="false">4:5</button>
+  </div>
+
+  <div class="reel">
+    <span aria-hidden="true">목록</span>
+    <div class="bar" role="group" aria-label="작업 넘기기">
+      <button id="prev" aria-label="이전 작업">◀</button>
+      <a id="cur" href="#work-01">01 / 03</a>
+      <button id="next" aria-label="다음 작업">▶</button>
+    </div>
+  </div>
+
+  <div class="keys">
+    <button id="kEnter" aria-label="지금 작업 열기"><kbd>⏎</kbd>ENTER</button>
+    <button id="kEsc" aria-label="맨 위로"><kbd>ESC</kbd>BACK</button>
+  </div>
+</div>
+
+<div class="hero" aria-label="홍보 영상"></div>
+<main>
+  <section id="work">
+    <h2><span>WORK</span><span>03 PROJECTS</span></h2>
+    <ul class="wlist">
+      <li><a href="#work-01"><span>01</span><b>헤이영캠퍼스 리디자인</b><span>MOBILE APP · REDESIGN</span><span>UX/UI</span></a></li>
+      <li><a href="#work-02"><span>02</span><b>잔망루피 팝업스토어 웹사이트</b><span>WEBSITE</span><span>UX/UI</span></a></li>
+      <li><a href="#work-03"><span>03</span><b>BODA 반려견 건강 앱</b><span>MOBILE APP</span><span>UX/UI</span></a></li>
+    </ul>
+  </section>
+
+  <!-- 01 · 헤이영캠퍼스 리디자인 — 목업은 화면 사진으로 직접 짬. 학교 로고 · 강의실 · 교수 이름 · 학년 · 평점 · 학교 SNS 아이콘은 바탕색으로 덮어 지움 -->
+  <section id="work-01">
+    <h2><span>WORK 01</span><span>01 / 03</span></h2>
+    <div class="case">
+      <div>
+        <span class="tagline">MOBILE APP · REDESIGN</span>
+        <h3>헤이영캠퍼스 리디자인</h3>
+        <dl class="meta"><div><dt>TYPE</dt><dd>MOBILE APP · UX/UI REDESIGN</dd></div><div><dt>FOR</dt><dd>대학생</dd></div><div><dt>FOCUS</dt><dd>사용성</dd></div></dl>
+        <p>매일 여는 학교 앱을 다시 들여다보고, 대학생에게 더 필요한 기능과 더 편한 UI 구조로 재설계했습니다. 출석체크와 오늘 수업, 스쿨버스 도착 시간처럼 자주 찾는 정보를 홈 화면 위쪽에 모아, 헤매지 않고 바로 닿도록 정리했습니다.</p>
+      </div>
+      <div class="shots">
+        <figure class="mock m-hy">
+          <div class="ph"><div class="scr" data-w="524"><img src="images/w01_home.webp" width="524" height="2000" alt="헤이영캠퍼스 리디자인 홈 화면" loading="lazy"><i class="erase" style="left:24px;top:84px;width:156px;height:44px;background:rgb(245,247,251)"></i><i class="erase" style="left:156px;top:384px;width:200px;height:30px"></i></div></div>
+          <div class="ph"><div class="scr" data-w="578"><img src="images/w01_attend.webp" width="578" height="2000" alt="출결·시간표 화면" loading="lazy"><i class="erase" style="left:172px;top:294px;width:210px;height:32px"></i><i class="erase" style="left:101px;top:771px;width:60px;height:29px;background:rgb(241,246,255)"></i><i class="erase" style="left:197px;top:817px;width:60px;height:30px;background:rgb(233,230,247)"></i><i class="erase" style="left:292px;top:771px;width:61px;height:29px;background:rgb(248,235,242)"></i></div></div>
+          <div class="ph"><div class="scr" data-w="597"><img src="images/w01_community.webp" width="597" height="2000" alt="커뮤니티 화면" loading="lazy"></div></div>
+          <figcaption>HOME · 출결/시간표 · 커뮤니티</figcaption>
+        </figure>
+        <figure class="mock m-hy">
+          <div class="ph"><div class="scr" data-w="425"><img src="images/w01_campus.webp" width="425" height="2000" alt="캠퍼스 화면" loading="lazy"><i class="erase" style="left:45px;top:1127px;width:78px;height:21px"></i><i class="erase" style="left:183px;top:1127px;width:60px;height:21px"></i><i class="erase" style="left:322px;top:1192px;width:44px;height:40px"></i></div></div>
+          <figcaption>CAMPUS</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 · 잔망루피 팝업스토어 웹사이트 — 학생이 준 캡처 2장(세로형은 학교 정보가 든 푸터를 잘라 낸 사본) -->
+  <section id="work-02">
+    <h2><span>WORK 02</span><span>02 / 03</span></h2>
+    <div class="case">
+      <div>
+        <span class="tagline">WEBSITE</span>
+        <h3>잔망루피 팝업스토어 웹사이트</h3>
+        <dl class="meta"><div><dt>TYPE</dt><dd>WEBSITE · UX/UI</dd></div><div><dt>FOR</dt><dd>팝업스토어 방문객</dd></div></dl>
+        <p>잔망루피 × 원피스 팝업스토어를 소개하는 웹사이트입니다. 팝업 소개와 이벤트, 방문 인증샷, 굿즈 쇼핑, 후기, 자주 묻는 질문까지 방문 전후에 필요한 정보를 한 페이지 흐름으로 이어 구성했습니다.</p>
+      </div>
+      <div class="shots">
+        <figure><img src="images/w02_main.png" alt="잔망루피 팝업스토어 메인 화면" loading="lazy" style="object-position: 30% 50%"><figcaption>MAIN</figcaption></figure>
+        <figure><img src="images/w02_full.jpg" alt="잔망루피 팝업스토어 페이지 전체" loading="lazy" style="object-position: 50% 38%"><figcaption>FULL PAGE</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · BODA — 목업은 화면 사진으로 직접 짬. 가족 구성원 화면(실명처럼 보이는 이름)은 쓰지 않음 -->
+  <section id="work-03">
+    <h2><span>WORK 03</span><span>03 / 03</span></h2>
+    <div class="case">
+      <div>
+        <span class="tagline">MOBILE APP</span>
+        <h3>BODA 반려견 건강 앱</h3>
+        <dl class="meta"><div><dt>TYPE</dt><dd>MOBILE APP · UX/UI</dd></div><div><dt>FOCUS</dt><dd>데이터 시각화 · 화면 흐름</dd></div></dl>
+        <p>반려견의 심박수와 체온, 활동량을 웨어러블로 읽어 보여 주는 건강 관리 앱입니다. 상태에 따라 홈 화면의 색과 문장이 바뀌어 한눈에 알 수 있고, 음성으로 기록을 찾으면 AI가 요약해 줍니다. 음성 읽기와 고대비 모드, 텍스트 크기 같은 접근성 설정도 함께 설계했습니다.</p>
+      </div>
+      <div class="shots">
+        <figure class="mock m-bd">
+          <div class="ph"><img src="images/w03_home.webp" alt="BODA 홈 — 양호" loading="lazy"></div>
+          <div class="ph"><img src="images/w03_voice.webp" alt="BODA 음성 인식" loading="lazy"></div>
+          <div class="ph"><img src="images/w03_report.png" alt="BODA 건강 리포트" loading="lazy"></div>
+          <figcaption>HOME · VOICE · REPORT</figcaption>
+        </figure>
+        <figure class="mock m-bd">
+          <div class="ph"><img src="images/w03_realtime.webp" alt="BODA 실시간 건강 상태" loading="lazy"></div>
+          <figcaption>REAL-TIME DATA</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <h2><span>ABOUT</span><span>UX/UI DESIGNER</span></h2>
+    <div class="about">
+      <div>
+        <span class="tagline">기준</span>
+        <h3>깊이 들여다보고,<br>빛나는 것을 찾아 보여주는<br>디자이너, 남윤아</h3>
+        <p>매일 쓰는 것들을 오래 들여다봅니다. 작은 것 하나, 여백에서 형태까지 살피며 그 안에서 빛나는 부분을 찾고, 누구나 헤매지 않고 볼 수 있는 화면으로 옮깁니다.</p>
+        <div class="rows">
+          <div><span>FOCUS</span><span>서비스 UX/UI · 모바일 앱 · 웹사이트</span></div>
+          <div><span>TOOLS</span><span>Figma</span></div>
+        </div>
+      </div>
+      <div class="pic orb" aria-hidden="true"><i></i></div>
+    </div>
+  </section>
+  <footer class="foot"><span>YOONA NAM</span><span>© 2026</span></footer>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const hud = $('hud'), v = $('v');
+// 남윤아 홍보 영상 — 16:9(가로 화면) · 4:5(세로 화면)
+const SRC = { land: 'video/hero_16x9.mp4', port: 'video/hero_4x5.mp4' };
+// 4:5판 녹화 파일이 아직 없으면 세로 화면에서도 16:9 영상을 보여 준다(4:5 파일을 넣으면 자동으로 그쪽이 나온다)
+const TEMP = { land: 'video/hero_16x9.mp4', port: 'video/hero_16x9.mp4' };
+v.addEventListener('error', () => { const r = state.ratio; if (!v.src.includes(encodeURI(TEMP[r]).split('/').pop())) { v.src = TEMP[r]; v.muted = state.muted; if (!state.paused) v.play().catch(() => {}); } });
+const WORKS = [{ no: '01', href: '#work-01' }, { no: '02', href: '#work-02' }, { no: '03', href: '#work-03' }];
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// 소리 · 재생 · 비율 · 작업 상태는 여기 하나에서만 관리한다
+const state = { ratio: matchMedia('(max-aspect-ratio: 1/1)').matches ? 'port' : 'land', muted: true, paused: reduce, work: 0 };
+
+function render() {
+  $('play').textContent = state.paused ? '▶' : '❚❚';
+  $('play').setAttribute('aria-label', state.paused ? '재생' : '일시정지');
+  $('snd').textContent = state.muted ? 'SOUND OFF' : 'SOUND ON';
+  $('snd').setAttribute('aria-pressed', String(!state.muted));
+  document.querySelectorAll('[data-ratio]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.ratio === state.ratio)));
+  const w = WORKS[state.work]; $('cur').textContent = `${w.no} / ${String(WORKS.length).padStart(2, '0')}`; $('cur').href = w.href;
+}
+function load(ratio, keepTime) {
+  const t = keepTime ? v.currentTime : 0;
+  v.pause(); state.ratio = ratio;
+  v.src = SRC[ratio]; v.muted = state.muted;
+  v.addEventListener('loadedmetadata', () => { v.currentTime = t % (v.duration || 1); if (!state.paused) v.play().catch(() => { state.paused = true; render(); }); }, { once: true });
+  render();
+}
+let userPaused = false;   // 사용자가 직접 멈췄는지 — 자동 재생이 막혔을 때만 다시 시도하려고
+$('play').onclick = () => { state.paused = !state.paused; userPaused = state.paused; state.paused ? v.pause() : v.play().catch(() => {}); render(); };
+// 자동 재생이 막혔으면(탭이 뒤에서 열렸을 때 등) 화면을 보거나 스크롤 · 클릭 · 키를 누르는 순간 다시 재생
+const retryPlay = () => { if (v.paused && !userPaused && !reduce) v.play().then(() => { state.paused = false; render(); }).catch(() => {}); };
+['pointerdown', 'keydown', 'scroll', 'touchstart'].forEach(ev => addEventListener(ev, retryPlay, { passive: true }));
+document.addEventListener('visibilitychange', () => { if (!document.hidden) retryPlay(); });
+$('back').onclick = () => { v.currentTime = Math.max(0, v.currentTime - 5); };
+$('fwd').onclick = () => { v.currentTime = (v.currentTime + 5) % (v.duration || 1); };
+$('snd').onclick = () => { state.muted = !state.muted; v.muted = state.muted; render(); };
+document.querySelectorAll('[data-ratio]').forEach(b => b.onclick = () => { if (b.dataset.ratio !== state.ratio) load(b.dataset.ratio, true); });
+$('prev').onclick = () => { state.work = (state.work + WORKS.length - 1) % WORKS.length; render(); };
+$('next').onclick = () => { state.work = (state.work + 1) % WORKS.length; render(); };
+const openWork = () => { location.hash = WORKS[state.work].href; };
+$('kEnter').onclick = openWork;
+// ESC · BACK: 맨 위(영상)로 돌아간다. HUD는 숨기지 않는다 — 영상 위 꾸밈 요소는 항상 보인다
+const backTop = () => { scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); };
+$('kEsc').onclick = backTop;
+addEventListener('keydown', e => {
+  if (e.key === 'Escape') { backTop(); return; }
+  if (e.key === 'Enter' && document.activeElement === document.body) { openWork(); return; }
+  const onHero = scrollY < innerHeight * 0.6;
+  if (e.key === 'ArrowRight' && onHero) { $('next').click(); }
+  if (e.key === 'ArrowLeft' && onHero) { $('prev').click(); }
+});
+
+// 타임코드 HH:MM:SS:FF(30fps) · 시계 — 값이 바뀔 때만 글자를 바꾼다
+const p2 = n => String(Math.floor(n)).padStart(2, '0');
+const tc = s => `${p2(s / 3600)}:${p2(s / 60 % 60)}:${p2(s % 60)}:${p2((s % 1) * 30)}`;
+const put = (el, t) => { if (el.textContent !== t) el.textContent = t; };
+(function tick() {
+  const t = tc(v.currentTime || 0); put($('tcS'), t); put($('tcL'), t);
+  const d = new Date(); put($('clock'), `${p2(d.getHours())}:${p2(d.getMinutes())}:${p2(d.getSeconds())}`);
+  requestAnimationFrame(tick);
+})();
+
+// 목업 속 화면 사진(.scr)을 폰 폭에 맞게 줄임 — 지운 자리(.erase)도 함께 줄어든다
+const fitScr = () => document.querySelectorAll('.mock .scr').forEach(s => { s.style.width = s.dataset.w + 'px'; s.style.transform = `scale(${s.parentElement.clientWidth / +s.dataset.w})`; });
+addEventListener('resize', fitScr); addEventListener('load', fitScr); fitScr();
+
+load(state.ratio, false);
+if (reduce) { v.addEventListener('loadeddata', () => { v.currentTime = 0.5; }, { once: true }); }
+</script>
+</body>
+</html>
