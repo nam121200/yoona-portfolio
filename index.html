@@ -178,6 +178,11 @@ main h3, main p, .wlist b { word-break: keep-all; }   /* 한글 단어 중간에
 .mock .ph .scr { position: absolute; left: 0; top: 0; height: 2000px; transform-origin: 0 0; }
 .mock .ph .scr img { position: absolute; left: 0; top: 0; width: auto; }
 .mock figcaption { color: var(--fg); }
+.m-ad { background: linear-gradient(160deg, #EEF0F7 0%, #F4F1EA 60%, #E8ECFA 100%); gap: 4%; }   /* ADERERROR: 에센스 페이지의 크림색 + 브랜드 파랑을 아주 옅게 */
+.mock .pg { position: relative; width: 28%; max-height: 86%; aspect-ratio: 1 / 2; border-radius: 8px; overflow: hidden; background: #fff; flex: none;
+  box-shadow: 0 0 0 1px rgba(20,20,40,.10), 0 16px 32px rgba(30,30,70,.18); }   /* 데스크톱 페이지 카드 — 페이지 윗부분을 보여 줌 */
+.mock .pg.pg-wide { aspect-ratio: 3 / 4; height: auto; width: 84%; }
+.mock .pg img { position: static; display: block; width: 100%; height: auto; object-fit: initial; }
 .orb { display: grid; place-items: center; background: linear-gradient(180deg, #ECE6FB 0%, #D9CCF6 40%, #B78BF0 62%, #6F86F0 100%); }   /* 홍보 영상 첫 장면의 구슬 */
 .orb i { width: 34%; aspect-ratio: 1; border-radius: 50%;
   background: radial-gradient(circle at 36% 30%, #fff 0%, #F1EAFF 22%, #CDB8FA 48%, #9FA9F6 74%, #6F7EEA 100%);
@@ -197,6 +202,8 @@ main p { color: #5B5A66; }
 @media (hover: hover) { .wlist a:hover { background: var(--soft); color: var(--fg); } .wlist a:hover span { color: var(--accent2); } }
 .shots figure { border: var(--line); border-radius: 18px; }
 .shots figcaption { background: rgba(255,255,255,.92); color: var(--fg); border-radius: 6px; }
+.arc .ph { aspect-ratio: 16 / 9; border-radius: 12px; }   /* 기록: 홍보 영상 스틸(가로)이라 16:9 그대로 — 잘라 내지 않음 */
+.arc figcaption span { color: var(--sub); }
 .about .pic { border: var(--line); border-radius: 24px; }
 .rows div span:first-child { color: var(--sub); }
 .foot { color: var(--sub); }
@@ -213,6 +220,7 @@ main p { color: #5B5A66; }
     <nav class="nav" aria-label="주 메뉴">
       <a href="#work"><span>WORK</span><span>작업</span></a>
       <a href="#about"><span>ABOUT</span><span>소개</span></a>
+      <a href="#archive"><span>ARCHIVE</span><span>기록</span></a>
     </nav>
     <div class="status" aria-hidden="true"><span class="rec">REC</span><span id="clock">00:00:00</span></div>
   </div>
@@ -258,7 +266,7 @@ main p { color: #5B5A66; }
     <h2><span>WORK</span><span>03 PROJECTS</span></h2>
     <ul class="wlist">
       <li><a href="#work-01"><span>01</span><b>헤이영캠퍼스 리디자인</b><span>MOBILE APP · REDESIGN</span><span>UX/UI</span></a></li>
-      <li><a href="#work-02"><span>02</span><b>잔망루피 팝업스토어 웹사이트</b><span>WEBSITE</span><span>UX/UI</span></a></li>
+      <li><a href="#work-02"><span>02</span><b>ADERERROR 웹사이트 리디자인</b><span>WEBSITE · REDESIGN</span><span>UX/UI</span></a></li>
       <li><a href="#work-03"><span>03</span><b>BODA 반려견 건강 앱</b><span>MOBILE APP</span><span>UX/UI</span></a></li>
     </ul>
   </section>
@@ -288,19 +296,27 @@ main p { color: #5B5A66; }
     </div>
   </section>
 
-  <!-- 02 · 잔망루피 팝업스토어 웹사이트 — 학생이 준 캡처 2장(세로형은 학교 정보가 든 푸터를 잘라 낸 사본) -->
+  <!-- 02 · ADERERROR 웹사이트 리디자인 — 학생이 준 페이지 캡처(메인 · 시그니피컨트 · 에센스 · 슈즈 목록). 목업은 페이지 윗부분을 카드로 직접 짬 -->
   <section id="work-02">
     <h2><span>WORK 02</span><span>02 / 03</span></h2>
     <div class="case">
       <div>
-        <span class="tagline">WEBSITE</span>
-        <h3>잔망루피 팝업스토어 웹사이트</h3>
-        <dl class="meta"><div><dt>TYPE</dt><dd>WEBSITE · UX/UI</dd></div><div><dt>FOR</dt><dd>팝업스토어 방문객</dd></div></dl>
-        <p>잔망루피 × 원피스 팝업스토어를 소개하는 웹사이트입니다. 팝업 소개와 이벤트, 방문 인증샷, 굿즈 쇼핑, 후기, 자주 묻는 질문까지 방문 전후에 필요한 정보를 한 페이지 흐름으로 이어 구성했습니다.</p>
+        <span class="tagline">WEBSITE · REDESIGN</span>
+        <h3>ADERERROR 웹사이트 리디자인</h3>
+        <dl class="meta"><div><dt>TYPE</dt><dd>WEBSITE · UX/UI REDESIGN</dd></div><div><dt>PAGES</dt><dd>메인 · 컬렉션 · 카테고리 · 기획전</dd></div></dl>
+        <p>아더에러 온라인 스토어를 다시 디자인했습니다. 메인과 컬렉션(시그니피컨트 · 에센스), 카테고리 목록, 홀리데이 기획전 페이지를 같은 그리드로 정리하고, 목록 페이지 위쪽에 시리즈로 보기 · 가격대로 고르기 · 필터를 모아 원하는 상품을 빠르게 좁힐 수 있게 했습니다. 상품 사이에는 캠페인 카드를 넣어 컬렉션 이야기와 쇼핑이 한 화면에서 이어지도록 구성했습니다.</p>
       </div>
       <div class="shots">
-        <figure><img src="images/w02_main.png" alt="잔망루피 팝업스토어 메인 화면" loading="lazy" style="object-position: 30% 50%"><figcaption>MAIN</figcaption></figure>
-        <figure><img src="images/w02_full.jpg" alt="잔망루피 팝업스토어 페이지 전체" loading="lazy" style="object-position: 50% 38%"><figcaption>FULL PAGE</figcaption></figure>
+        <figure class="mock m-ad">
+          <div class="pg"><img src="images/w02_ader_main.webp" alt="ADERERROR 리디자인 메인 페이지" loading="lazy"></div>
+          <div class="pg"><img src="images/w02_ader_significant.webp" alt="시그니피컨트 컬렉션 페이지" loading="lazy"></div>
+          <div class="pg"><img src="images/w02_ader_essence.webp" alt="에센스 컬렉션 페이지" loading="lazy"></div>
+          <figcaption>MAIN · SIGNIFICANT · ESSENCE</figcaption>
+        </figure>
+        <figure class="mock m-ad">
+          <div class="pg pg-wide"><img src="images/w02_ader_shoes.webp" alt="슈즈 카테고리 목록 페이지" loading="lazy"></div>
+          <figcaption>CATEGORY</figcaption>
+        </figure>
       </div>
     </div>
   </section>
@@ -311,7 +327,7 @@ main p { color: #5B5A66; }
     <div class="case">
       <div>
         <span class="tagline">MOBILE APP</span>
-        <h3>BODA 반려견 건강 앱</h3>
+        <h3>BODA 반려견<br>건강 앱</h3>
         <dl class="meta"><div><dt>TYPE</dt><dd>MOBILE APP · UX/UI</dd></div><div><dt>FOCUS</dt><dd>데이터 시각화 · 화면 흐름</dd></div></dl>
         <p>반려견의 심박수와 체온, 활동량을 웨어러블로 읽어 보여 주는 건강 관리 앱입니다. 상태에 따라 홈 화면의 색과 문장이 바뀌어 한눈에 알 수 있고, 음성으로 기록을 찾으면 AI가 요약해 줍니다. 음성 읽기와 고대비 모드, 텍스트 크기 같은 접근성 설정도 함께 설계했습니다.</p>
       </div>
@@ -343,6 +359,16 @@ main p { color: #5B5A66; }
         </div>
       </div>
       <div class="pic orb" aria-hidden="true"><i></i></div>
+    </div>
+  </section>
+  <!-- ARCHIVE · 기록 — 홍보 영상 첫 컷 + 작업 세 개에서 한 페이지씩 보기 좋게 잘라 낸 컷(한 컷에 한 페이지만) -->
+  <section id="archive">
+    <h2><span>ARCHIVE</span><span>FILM · WORKS</span></h2>
+    <div class="arc">
+      <figure><div class="ph"><img src="images/ar01_open.jpg" alt="홍보 영상 여는 장면 — 구슬과 이름" loading="lazy"></div><figcaption><span>2026.11 · PROMO FILM</span><b>Designer, 남윤아</b></figcaption></figure>
+      <figure><div class="ph"><img src="images/ar02_heyoung.jpg" alt="헤이영캠퍼스 리디자인 홈 화면 위쪽 — 지금 수업과 출석체크" loading="lazy"></div><figcaption><span>WORK 01 · MOBILE APP</span><b>헤이영캠퍼스 — 출석체크</b></figcaption></figure>
+      <figure><div class="ph"><img src="images/ar03_aderror.jpg" alt="ADERERROR 리디자인 메인 페이지 히어로" loading="lazy"></div><figcaption><span>WORK 02 · WEBSITE</span><b>ADERERROR — 메인 히어로</b></figcaption></figure>
+      <figure><div class="ph"><img src="images/ar04_boda.jpg" alt="BODA 홈 화면 — 오늘의 건강 요약" loading="lazy"></div><figcaption><span>WORK 03 · MOBILE APP</span><b>BODA — 오늘의 건강 요약</b></figcaption></figure>
     </div>
   </section>
   <footer class="foot"><span>YOONA NAM</span><span>© 2026</span></footer>
